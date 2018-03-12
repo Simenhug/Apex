@@ -77,7 +77,27 @@ def createACAT():
 
    return tifId
 
-#
+def signTif():
+
+   with open("secrets.yml",'r') as stream:
+      try:
+         yml = yaml.load(stream)
+      except yaml.YAMLError as exc:
+         print(exc)
+
+   jwt = yml['jwt']
+
+   tifId = yml['tifId']
+
+   headers = {"Authorization": jwt, 'content-type': 'application/json'}
+
+   url = 'https://uat-api.apexclearing.com/alps/api/v1/tif/%s' % tifId
+
+   response = requests.put(url, headers=headers)
+
+   rJSON = json.loads(response.text)
+
+   print(rJSON)
 #
 # For pending transfers
 def getControlNumber():

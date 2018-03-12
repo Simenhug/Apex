@@ -6,8 +6,6 @@ import json
 import requests
 import yaml
 
-
-
 def createACAT():
 
    with open("secrets.yml",'r') as stream:
@@ -18,7 +16,11 @@ def createACAT():
 
    username = yml['username']
 
-   account = yml['test_account']
+   receiver = yml['receive_account']
+
+   deliverer = yml['deliver_account']
+
+   processingCaseId = yml['processingCaseId']
 
    entity = yml['entity']
 
@@ -31,12 +33,12 @@ def createACAT():
    accountTitle = yml['accountTitle']
 
    body = {
-      "account": account,
+      "account": receiver,
       "disableAutoSign": 'false',
       "clientReferenceId": clientReferenceId,
       "transferType": "FULL_TRANSFER",
       "contraParty": {
-         "account": account,
+         "account": deliverer,
          "accountTitle": accountTitle,
          "primarySsnOrTaxId": "",
          "secondarySsnOrTaxId": "",
@@ -55,31 +57,53 @@ def createACAT():
 
    responseJSON = json.loads(response.text)
 
+   print(responseJSON)
+
    try:
       tifId = responseJSON['tifId']
+      newCaseId = responseJSON['processingCaseId']
    except KeyError:
       tifId = responseJSON['errors'][0]['attemptedValue']
 
    with open('secrets.yml', 'r') as f:
       doc = yaml.load(f)
    doc['tifId'] = tifId
+   doc['processingCaseId'] = newCaseId
    with open('secrets.yml', 'w') as f:
       yaml.dump(doc, f)
 
    print('tifid = ' + tifId)
+   print('processingCaseId = ' + newCaseId)
 
    return tifId
 
 #
 #
 # For pending transfers
-def getControlNumber(accountNumber):
+def getControlNumber():
 
-# fill this later
+   with open("secrets.yml",'r') as stream:
+      try:
+         yml = yaml.load(stream)
+      except yaml.YAMLError as exc:
+         print(exc)
 
-   response = requests.get('https://uat-api.apexclearing.com/alps/api/v1/account_acats_in_progress/%s' % accountNumber)
+   accountNumber = yml['receive_account']
 
-   details = response.content['transfers'][0]
+   jwt = yml['jwt']
+
+   headers = {"Authorization": jwt, 'content-type': 'application/json'}
+
+   response = requests.get('https://uat-api.apexclearing.com/alps/api/v1/account_acats_in_progress/%s' % accountNumber,headers = headers)
+
+   rJSON = json.loads(response.text)
+
+   print(rJSON)
+
+   try:
+      details = rJSON['transfers'][0]
+   except KeyError:
+      print(KeyError)
 
    controlNumber = details["controlNumber"]
 
@@ -98,7 +122,7 @@ def reviewACATDetail(controlNumber):
 
    response = requests.get('https://api.apexclearing.com/alps/api/v2/acats/%s/details' % controlNumber)
 
-tifid = createACAT()
+
 #controlNumber = getControlNumber(account)
 
 

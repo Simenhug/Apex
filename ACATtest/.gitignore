@@ -1,0 +1,5 @@
+# hide all secrets #
+
+*.yml
+.yml
+secrets.yml

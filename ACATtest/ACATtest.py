@@ -73,10 +73,11 @@ def createACAT():
       yaml.dump(doc, f)
 
    print('tifid = ' + tifId)
-   print('processingCaseId = ' + newCaseId)
+   print('processingCaseId = ' + str(newCaseId))
 
    return tifId
 
+# optional to sign. This seems unnecessary since only "created state" tifs can be signed
 def signTif():
 
    with open("secrets.yml",'r') as stream:
@@ -99,7 +100,7 @@ def signTif():
 
    print(rJSON)
 #
-# For pending transfers
+# For pending transfers, doesn't work in uat environment
 def getControlNumber():
 
    with open("secrets.yml",'r') as stream:
@@ -144,8 +145,6 @@ def reviewACATDetail(controlNumber):
 
 
 #controlNumber = getControlNumber(account)
-
-
 
 
 

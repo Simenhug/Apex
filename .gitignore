@@ -3,3 +3,7 @@
 *.yml
 .yml
 secrets.yml
+
+# hide all ale #
+
+ale.yml

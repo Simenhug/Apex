@@ -136,17 +136,93 @@ def getControlNumber():
 
 
 def reviewACATSummary(controlNumber):
+   with open("secrets.yml",'r') as stream:
+      try:
+         yml = yaml.load(stream)
+      except yaml.YAMLError as exc:
+         print(exc)
 
-   response = requests.get('https://api.apexclearing.com/alps/api/v2/acats/%s' % controlNumber)
+   accountNumber = yml['receive_account']
+
+   jwt = yml['jwt']
+
+   with open("ale.yml", 'r') as s:
+      try: 
+         ale = yaml.load(s)
+      except yaml.YAMLError as exc:
+         print(exc)
+
+   controlNumber = ale['controlNumber']
+
+   headers = {"Authorization": jwt, 'content-type': 'application/json'}
+
+   response = requests.get('https://api.apexclearing.com/alps/api/v2/acats/%s' % controlNumber, headers=headers)
+
+   rJSON = json.loads(response.text)
+
+   print(rJSON)
+
 
 def reviewACATDetail(controlNumber):
 
-   response = requests.get('https://api.apexclearing.com/alps/api/v2/acats/%s/details' % controlNumber)
+   with open("secrets.yml",'r') as stream:
+      try:
+         yml = yaml.load(stream)
+      except yaml.YAMLError as exc:
+         print(exc)
 
+   accountNumber = yml['receive_account']
 
-#controlNumber = getControlNumber(account)
+   jwt = yml['jwt']
 
+   with open("ale.yml", 'r') as s:
+      try: 
+         ale = yaml.load(s)
+      except yaml.YAMLError as exc:
+         print(exc)
 
+   controlNumber = ale['controlNumber']
+
+   headers = {"Authorization": jwt, 'content-type': 'application/json'}
+
+   response = requests.get('https://api.apexclearing.com/alps/api/v2/acats/%s/details' % controlNumber, headers=headers)
+
+   rJSON = json.loads(response.text)
+
+   print(rJSON)
+
+def rejectACAT():
+
+   with open("secrets.yml",'r') as stream:
+      try:
+         yml = yaml.load(stream)
+      except yaml.YAMLError as exc:
+         print(exc)
+
+   accountNumber = yml['receive_account']
+
+   jwt = yml['jwt']
+
+   with open("ale.yml", 'r') as s:
+      try: 
+         ale = yaml.load(s)
+      except yaml.YAMLError as exc:
+         print(exc)
+
+   controlNumber = ale['controlNumber']
+
+   headers = {"Authorization": jwt, 'content-type': 'application/json'}
+
+   body = {
+      "reason": "DOCUMENTATION_NEEDED"
+      "comment": "Test"
+   }
+
+   response = requests.delete('https://api.apexclearing.com/alps/api/v2/acats/%s/reject' % controlNumber, headers=headers)
+
+   rJSON = json.loads(response.text)
+
+   print(rJSON)
 
 
 
